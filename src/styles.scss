@@ -1,1 +1,145 @@
-/* You can add global styles to this file, and also import other style files */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Courier New', monospace;
+  background-color: #000;
+  color: #00ff00;
+  position: relative;
+  overflow-x: hidden;
+  min-height: 100vh;
+
+  // Efecto de fondo con gradiente
+  background: radial-gradient(
+      ellipse at center,
+      rgba(0, 50, 0, 0.8) 0%,
+      rgba(0, 0, 0, 1) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(0, 20, 0, 1) 0%,
+      rgba(0, 0, 0, 1) 50%,
+      rgba(0, 20, 0, 1) 100%
+    );
+  background-attachment: fixed;
+
+  // Efecto CRT con scanlines sutiles
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.15),
+      rgba(0, 0, 0, 0.15) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+    animation: scanline 8s linear infinite;
+  }
+
+  // Efecto de grano / ruido
+  &::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.05;
+    background: repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.03),
+        rgba(255, 255, 255, 0.03) 1px,
+        transparent 1px,
+        transparent 2px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.03),
+        rgba(255, 255, 255, 0.03) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(10px);
+  }
+}
+
+// Efecto de texto con glow
+h1,
+h2,
+h3 {
+  text-shadow: 0 0 5px currentColor;
+}
+
+// Scroll personalizado
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #00ff00;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00ff00;
+  border-radius: 6px;
+
+  &:hover {
+    background: #00ffff;
+  }
+}
+
+// Animación de entrada
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+app-root {
+  display: block;
+  animation: fadeIn 0.5s ease-out;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+// Selectores de texto
+::selection {
+  background: rgba(0, 255, 0, 0.3);
+  color: #00ffff;
+}
+
+::-moz-selection {
+  background: rgba(0, 255, 0, 0.3);
+  color: #00ffff;
+}
