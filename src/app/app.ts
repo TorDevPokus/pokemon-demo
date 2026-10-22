@@ -1,12 +1,20 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
-  imports: [RouterOutlet],
   selector: 'app-root',
-  styleUrl: './app.scss',
-  templateUrl: './app.html',
+  imports: [RouterOutlet],
+  template: `
+    <div class="app-container">
+      <router-outlet />
+    </div>
+  `,
+  styles: [
+    `
+      .app-container {
+        min-height: 100vh;
+      }
+    `,
+  ],
 })
-export class App {
-  protected readonly title = signal('pokemon-app');
-}
+export class AppComponent {}
