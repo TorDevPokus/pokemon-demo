@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Pokemon } from '../../models/pokemon.model';
+import { PokemonService } from '../../services/pokemon.service';
 
 @Component({
   selector: 'app-pokemon-card',
@@ -11,20 +12,22 @@ import { Pokemon } from '../../models/pokemon.model';
     <div class="pokemon-card" [routerLink]="['/pokemon', pokemon.id]">
       <div class="pokemon-card__id">#{{ formatId(pokemon.id) }}</div>
       <div class="pokemon-card__image">
-        @if (pokemon.sprites?.front_default) {
+        @if (pokemonDetail) {
           <img
-            [src]="pokemon.sprites.front_default"
+            [src]="pokemonDetail.sprites.front_default"
             [alt]="pokemon.name"
             loading="lazy"
           />
         } @else {
-          <div class="pokemon-card__image-placeholder">?</div>
+          <div class="pokemon-card__image-placeholder">
+            <div class="spinner"></div>
+          </div>
         }
       </div>
       <h3 class="pokemon-card__name">{{ pokemon.name }}</h3>
-      @if (pokemon.types && pokemon.types.length > 0) {
+      @if (pokemonDetail && pokemonDetail.types && pokemonDetail.types.length > 0) {
         <div class="pokemon-card__types">
-          @for (type of pokemon.types; track type.slot) {
+          @for (type of pokemonDetail.types; track type.slot) {
             <span
               class="pokemon-type"
               [attr.data-type]="type.type.name"
@@ -90,8 +93,6 @@ import { Pokemon } from '../../models/pokemon.model';
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 2rem;
-          color: #00ff00;
         }
 
         &__name {
@@ -109,6 +110,21 @@ import { Pokemon } from '../../models/pokemon.model';
           gap: 0.5rem;
           flex-wrap: wrap;
           justify-content: center;
+        }
+      }
+
+      .spinner {
+        width: 30px;
+        height: 30px;
+        border: 3px solid rgba(0, 255, 0, 0.3);
+        border-top-color: #00ff00;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
         }
       }
 
@@ -196,8 +212,23 @@ import { Pokemon } from '../../models/pokemon.model';
     `,
   ],
 })
-export class PokemonCardComponent {
+export class PokemonCardComponent implements OnInit {
   @Input({ required: true }) pokemon!: Pokemon;
+  private pokemonService = inject(PokemonService);
+  
+  pokemonDetail: any = null;
+
+  ngOnInit() {
+    // Cargar detalles de manera lazy
+    this.pokemonService.getPokemonById(this.pokemon.id).subscribe({
+      next: (detail) => {
+        this.pokemonDetail = detail;
+      },
+      error: () => {
+        // En caso de error, mantener sin detalles
+      }
+    });
+  }
 
   formatId(id: number): string {
     return id.toString().padStart(3, '0');
