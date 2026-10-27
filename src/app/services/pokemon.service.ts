@@ -14,7 +14,7 @@ import {
 })
 export class PokemonService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'https://pokeapi.co/api/v2';
+  private readonly baseUrl = '/api';
   private readonly pokemonCache = new Map<number, PokemonDetail>();
 
   getPokemons(limit: number = 20, offset: number = 0): Observable<Pokemon[]> {
