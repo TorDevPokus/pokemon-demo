@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, of, forkJoin } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap, timeout } from 'rxjs/operators';
 import {
   Pokemon,
   PokemonListResponse,
@@ -14,7 +14,7 @@ import {
 })
 export class PokemonService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/api';
+  private readonly baseUrl = 'https://pokeapi.co/api/v2';
   private readonly pokemonCache = new Map<number, PokemonDetail>();
 
   getPokemons(limit: number = 20, offset: number = 0): Observable<Pokemon[]> {
@@ -23,6 +23,7 @@ export class PokemonService {
         `${this.baseUrl}/pokemon?limit=${limit}&offset=${offset}`
       )
       .pipe(
+        timeout(10000),
         switchMap((response) => {
           const pokemonWithIds = response.results.map((pokemon, index) => ({
             ...pokemon,
@@ -36,11 +37,14 @@ export class PokemonService {
                 sprites: detail.sprites,
                 types: detail.types,
               })),
-              catchError(() => of(pokemon))
+              catchError((err) => {
+                console.log(`Failed to load pokemon ${pokemon.id}:`, err);
+                return of(pokemon);
+              })
             )
           );
 
-          return forkJoin(detailRequests);
+          return detailRequests.length > 0 ? forkJoin(detailRequests) : of([]);
         }),
         catchError(this.handleError)
       );
@@ -68,6 +72,7 @@ export class PokemonService {
     return this.http
       .get<PokemonDetail>(`${this.baseUrl}/pokemon/${name.toLowerCase()}`)
       .pipe(
+        timeout(8000),
         map((pokemon) => {
           this.pokemonCache.set(pokemon.id, pokemon);
           return pokemon;
@@ -78,6 +83,7 @@ export class PokemonService {
 
   getPokemonTypes(): Observable<string[]> {
     return this.http.get<PokemonTypeResponse>(`${this.baseUrl}/type`).pipe(
+      timeout(8000),
       map((response) => response.results.map((type) => type.name).sort()),
       catchError(this.handleError)
     );
@@ -87,6 +93,7 @@ export class PokemonService {
     return this.http
       .get<any>(`${this.baseUrl}/type/${type}`)
       .pipe(
+        timeout(10000),
         map((response) =>
           response.pokemon
             .map((p: any) => {
@@ -112,7 +119,7 @@ export class PokemonService {
             )
           );
 
-          return forkJoin(detailRequests);
+          return detailRequests.length > 0 ? forkJoin(detailRequests) : of([]);
         }),
         catchError(this.handleError)
       );
