@@ -1,6 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PokemonService } from '../../services/pokemon.service';
 import { Pokemon } from '../../models/pokemon.model';
 import { PokemonCardComponent } from '../pokemon-card/pokemon-card.component';
@@ -312,7 +314,7 @@ export class PokemonListComponent implements OnInit {
   searchTerm = '';
   selectedType = '';
   currentPage = 1;
-  pageSize = 20;
+  pageSize = 6;
 
   isFiltered = false;
   isSearching = false;
